@@ -36,7 +36,7 @@ function confirmarLogout() {
         if (result.isConfirmed) {
             Swal.fire({
                 title: "Exito!",
-                text: "Su cesión ha sido cerrada satisfactoriamente.",
+                text: "Cerrando Sesión",
                 icon: "success"
             });
             logout();
@@ -82,6 +82,6 @@ async function logout() {
         }
     } catch (error) {
         console.error('Error durante el logout:', error);
-        mostrarAlerta('Error en la respuesta del servidor');
+        mostrarAlerta('Error en la respuesta del servidor. Vuelva a intentarlo');
     }
 }
