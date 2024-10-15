@@ -1,29 +1,84 @@
 //Se ejcuta cuando la pagina se ha cargado completamente
 // document.addEventListener('DOMContentLoaded', {});
 // <script type="module" src="js/inicio.js" defer></script>
-window.addEventListener('load',function(){
+window.addEventListener('load', function(){
+    
+    // referenciar controles del formulario
     const tipoDocumento = this.document.getElementById('tipoDocumento');
     const numeroDocumento = this.document.getElementById('numeroDocumento');
     const password = this.document.getElementById('password');
-    const msgError = this.document.getElementById('msgError');
     const btnIngresar = this.document.getElementById('btnIngresar');
+    const msgError = this.document.getElementById('msgError');
 
+    // implementar listener del boton
     btnIngresar.addEventListener('click', function(){
-        if(tipoDocumento.value === null || tipoDocumento.value.trim() === '' ||
-        numeroDocumento.value.trim() === '' || numeroDocumento.value === '' ||
-        password.value.trim() === '' || password.value === null){
-            mostrarAlerta('Todos los campos son obligatorios');
-            return;
+
+        // validar campos del formulario
+        if(tipoDocumento.value === null || tipoDocumento.value.trim() === '' || 
+            numeroDocumento.value === null || numeroDocumento.value.trim() === '' || 
+            password.value === null || password.value.trim() === '') {
+                mostrarAlerta('Error: Debe completar correctamente sus credenciales');
+                return;
         }
         ocultarAlerta();
-        });
+        autenticar();
+
+    });
+
 });
 
-function mostrarAlerta(mensaje){
-    msgError.textContent = mensaje;
+function mostrarAlerta(mensaje) {
+    msgError.innerHTML = mensaje;
     msgError.style.display = 'block';
 }
 
-function ocultarAlerta(){
+function ocultarAlerta() {
+    msgError.innerHTML = '';
     msgError.style.display = 'none';
+}
+
+async function autenticar() {
+
+    const url = 'http://localhost:8082/login/autenticar-async';
+    const request = {
+        tipoDocumento: tipoDocumento.value,
+        numeroDocumento: numeroDocumento.value,
+        password: password.value
+    };
+
+    try {
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        });
+
+        if(!response.ok) {
+            mostrarAlerta('Error: Ocurrió un problema con la autenticación');
+            throw new Error(`Error: ${response.statusText}`);
+        }
+
+        // validar respuesta
+        const result = await response.json();
+        console.log('Respuesta del servidor: ', result);
+
+        if(result.codigo === '00') {
+            result.tipoDocumento = tipoDocumento.value;
+            result.numeroDocumento = numeroDocumento.value;
+            localStorage.setItem('result', JSON.stringify(result));
+            window.location.replace('principal.html');
+        } else {
+            mostrarAlerta(result.mensaje);
+        }
+
+    } catch (error) {
+        
+        console.log('Error: Ocurrió un problema con la autenticación', error);
+        mostrarAlerta('Error: Ocurrió un problema con la autenticación');
+
+    }
+
 }
