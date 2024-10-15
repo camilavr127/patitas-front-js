@@ -7,9 +7,10 @@ window.addEventListener('load', function(){
     // mostrar nombre de usuario en alerta
     mostrarAlerta(`Bienvenido ${result.usuario}`);
 
-    alogout.addEventListener('click', function() {
+    alogout.addEventListener('click', function(e) {
+        e.preventDefault();
         ocultarAlerta()
-        logout();
+        confirmarLogout();
     });
 });
 
@@ -20,6 +21,27 @@ function mostrarAlerta(mensaje) {
 function ocultarAlerta() {
     msgSuccess.innerHTML = '';
     msgSuccess.style.display = 'none';
+}
+
+function confirmarLogout() {
+    Swal.fire({
+        title: "¿Desea Cerrar Sesión?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: "Exito!",
+                text: "Su cesión ha sido cerrada satisfactoriamente.",
+                icon: "success"
+            });
+            logout();
+        }
+    });
 }
 
 async function logout() {
@@ -51,7 +73,7 @@ async function logout() {
         console.log('Respuesta del servidor: ', result);
         if (result.resultado) {
             localStorage.removeItem('result');
-            mostrarAlerta('Sesión cerrada exitosamente');
+            mostrarAlerta('Redirigiendo a inicio de sesión');
             setTimeout(() => {
                 window.location.replace('index.html');
             }, 3000);
